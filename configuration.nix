@@ -1,6 +1,9 @@
 { pkgs, lib, ... }:
 
 {
+  # Allow unfree packages (1Password, etc.)
+  nixpkgs.config.allowUnfree = true;
+
   # Hostname
   networking.hostName = "phoenix-vm";
 
