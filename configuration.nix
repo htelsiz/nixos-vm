@@ -1,0 +1,97 @@
+{ pkgs, lib, ... }:
+
+{
+  # Hostname
+  networking.hostName = "phoenix-vm";
+
+  # Boot (GRUB for VM compatibility)
+  boot = {
+    loader.grub = {
+      enable = true;
+      device = "nodev";
+      efiSupport = true;
+      efiInstallAsRemovable = true;
+    };
+    loader.efi.canTouchEfiVariables = false;
+    tmp.useTmpfs = true;
+  };
+
+  # Timezone & Locale
+  time.timeZone = "America/Chicago";
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  # Nix settings
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # User
+  users.users.ht = {
+    isNormalUser = true;
+    description = "ht";
+    shell = pkgs.zsh;
+    extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "video" ];
+    initialPassword = "changeme";
+  };
+
+  # Passwordless sudo for wheel
+  security.sudo.wheelNeedsPassword = false;
+
+  # Desktop - KDE Plasma 6
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+  };
+
+  # Networking
+  networking.networkmanager.enable = true;
+  services.openssh.enable = true;
+  services.tailscale.enable = true;
+
+  # Audio - PipeWire
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+
+  # Programs
+  programs = {
+    zsh = {
+      enable = true;
+      enableCompletion = true;
+      autosuggestions.enable = true;
+      syntaxHighlighting.enable = true;
+    };
+    firefox.enable = true;
+    git.enable = true;
+    direnv.enable = true;
+    _1password.enable = true;
+    _1password-gui = {
+      enable = true;
+      polkitPolicyOwners = [ "ht" ];
+    };
+  };
+
+  # Packages
+  environment.systemPackages = with pkgs; [
+    vim
+    git
+    curl
+    wget
+    htop
+    tmux
+    ripgrep
+    fd
+    jq
+    unzip
+    tree
+  ];
+
+  # Virtualization
+  virtualisation.docker.enable = true;
+
+  # Power management
+  powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
+
+  system.stateVersion = "24.11";
+}
