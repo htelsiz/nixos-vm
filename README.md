@@ -1,39 +1,60 @@
 # NixOS VM Configuration
 
-Minimal NixOS configuration for running in UTM/Parallels on Apple Silicon (aarch64-linux).
+Universal NixOS configuration for virtual machines. Works on **any VM platform**
+(Parallels, UTM, QEMU/KVM, VirtualBox, VMware) on both **aarch64** and **x86_64**.
 
 ## Quick Install
 
-Boot the NixOS ISO in your VM, then run:
+1. Create a VM with **UEFI/EFI enabled** and boot the [NixOS ISO](https://nixos.org/download/)
+2. Once booted, run:
 
 ```bash
 curl -sL https://raw.githubusercontent.com/htelsiz/nixos-vm/main/install.sh | sudo bash
 ```
 
-This will partition, format, and install NixOS with KDE Plasma 6.
+The installer will prompt you for:
+- **Disk** to install to
+- **Hostname** (default: `nixvm`)
+- **Username** (default: `ht`)
+- **Password**
 
-## Manual Install
+## VM Setup Notes
+
+| Platform | Architecture | EFI Setting |
+|----------|-------------|-------------|
+| UTM | aarch64 | Enabled by default |
+| Parallels | aarch64 | Enabled by default |
+| QEMU/KVM | x86_64 or aarch64 | Use OVMF/UEFI firmware |
+| VirtualBox | x86_64 | Settings > System > Enable EFI |
+| VMware | x86_64 | VM Settings > Firmware: UEFI |
+
+## After Install
+
+Rebuild after editing config:
 
 ```bash
-# Clone this repo
-sudo git clone https://github.com/htelsiz/nixos-vm /etc/nixos
-
-# Generate hardware config for your VM
-sudo nixos-generate-config --show-hardware-config > /etc/nixos/hardware-configuration.nix
-
-# Install/rebuild
-sudo nixos-rebuild switch --flake /etc/nixos#phoenix-vm
+sudo nixos-rebuild switch --flake /etc/nixos
 ```
 
-## Default Credentials
+Edit settings (hostname/username/arch):
 
-- User: `ht`
-- Password: `changeme` (change after first login!)
+```bash
+sudo vim /etc/nixos/settings.nix
+```
 
 ## What's Included
 
-- KDE Plasma 6 desktop
+- KDE Plasma 6 desktop (Wayland)
 - Zsh with Oh My Zsh
 - Git, Docker, Tailscale
 - Firefox, 1Password
 - Home Manager for user config
+- PipeWire audio
+- OpenSSH
+
+## Customizing
+
+- **System packages**: `configuration.nix` > `environment.systemPackages`
+- **User packages**: `home.nix` > `home.packages`
+- **Services**: `configuration.nix` > `services.*`
+- **Disk layout**: `disko-config.nix`
