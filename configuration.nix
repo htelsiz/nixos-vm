@@ -1,13 +1,15 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, hostname, username, modulesPath, ... }:
 
 {
+  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
+
   # Allow unfree packages (1Password, etc.)
   nixpkgs.config.allowUnfree = true;
 
-  # Hostname
-  networking.hostName = "phoenix-vm";
+  # Hostname (from settings.nix via specialArgs)
+  networking.hostName = hostname;
 
-  # Boot (GRUB for VM compatibility)
+  # Boot (GRUB EFI — efiInstallAsRemovable works across all VM platforms)
   boot = {
     loader.grub = {
       enable = true;
@@ -17,6 +19,13 @@
     };
     loader.efi.canTouchEfiVariables = false;
     tmp.useTmpfs = true;
+
+    # Broad VM kernel module support (covers all hypervisors)
+    initrd.availableKernelModules = [
+      "xhci_pci" "virtio_pci" "virtio_scsi" "virtio_blk"  # QEMU/KVM/UTM
+      "ahci" "sd_mod" "sr_mod" "usbhid"                    # VirtualBox/VMware/general
+      "hv_vmbus" "hv_storvsc"                               # Hyper-V
+    ];
   };
 
   # Timezone & Locale
@@ -26,10 +35,10 @@
   # Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # User
-  users.users.ht = {
+  # User (from settings.nix via specialArgs)
+  users.users.${username} = {
     isNormalUser = true;
-    description = "ht";
+    description = username;
     shell = pkgs.zsh;
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "video" ];
     initialPassword = "changeme";
@@ -71,7 +80,7 @@
     _1password.enable = true;
     _1password-gui = {
       enable = true;
-      polkitPolicyOwners = [ "ht" ];
+      polkitPolicyOwners = [ username ];
     };
   };
 
