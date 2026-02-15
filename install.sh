@@ -69,7 +69,7 @@ for i in "${!DISKS[@]}"; do
 done
 echo ""
 
-read -rp "Select disk [1]: " DISK_CHOICE
+read -rp "Select disk [1]: " DISK_CHOICE < /dev/tty
 DISK_CHOICE="${DISK_CHOICE:-1}"
 
 if ! [[ "$DISK_CHOICE" =~ ^[0-9]+$ ]] || (( DISK_CHOICE < 1 || DISK_CHOICE > ${#DISKS[@]} )); then
@@ -83,16 +83,16 @@ echo ""
 echo -e "  ${BOLD}Selected:${NC} $DISK ($DISK_SIZE)"
 echo ""
 warn "THIS WILL ERASE ALL DATA on $DISK ($DISK_SIZE)"
-read -rp "Continue? [y/N]: " CONFIRM
+read -rp "Continue? [y/N]: " CONFIRM < /dev/tty
 [[ "$CONFIRM" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 0; }
 
 # --- User Configuration ---
 echo ""
-read -rp "Hostname [nixvm]: " INPUT_HOSTNAME
+read -rp "Hostname [nixvm]: " INPUT_HOSTNAME < /dev/tty
 HOSTNAME="${INPUT_HOSTNAME:-nixvm}"
 [[ "$HOSTNAME" =~ ^[a-zA-Z][a-zA-Z0-9-]*$ ]] || error "Invalid hostname: '$HOSTNAME' (letters, digits, hyphens only)"
 
-read -rp "Username [ht]: " INPUT_USERNAME
+read -rp "Username [ht]: " INPUT_USERNAME < /dev/tty
 USERNAME="${INPUT_USERNAME:-ht}"
 [[ "$USERNAME" =~ ^[a-z_][a-z0-9_-]*$ ]] || error "Invalid username: '$USERNAME' (lowercase letters, digits, underscores, hyphens only)"
 
