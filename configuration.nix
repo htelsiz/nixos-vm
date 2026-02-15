@@ -54,6 +54,9 @@
     wayland.enable = true;
   };
 
+  # SPICE guest agent (clipboard sharing, resolution scaling)
+  services.spice-vdagentd.enable = true;
+
   # Networking
   networking.networkmanager.enable = true;
   services.openssh.enable = true;
