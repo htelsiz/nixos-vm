@@ -123,6 +123,7 @@ EOF
 info "[3/5] Partitioning $DISK with disko..."
 nix --experimental-features "nix-command flakes" run github:nix-community/disko -- \
   --mode destroy,format,mount \
+  --yes-wipe-all-disks \
   --arg disks "[ \"$DISK\" ]" \
   "$CLONE_DIR/disko-config.nix"
 ok "Disk partitioned and mounted at /mnt"
